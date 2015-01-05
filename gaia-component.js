@@ -32,7 +32,7 @@ module.exports.register = function(name, props) {
 
   var proto = Object.assign(Object.create(base), props);
   var output = extractLightDomCSS(proto.template, name);
-  var _attrs = Object.assign(props.attrs || {}, attrs);
+  var _attrs = Object.assign(props.attrs || {}, baseAttrs);
 
   proto.template = output.template;
   proto.lightCss = output.lightCss;
@@ -78,7 +78,7 @@ var base = Object.assign(Object.create(HTMLElement.prototype), {
    * @param  {String||null} to
    */
   attributeChangedCallback: function(name, from, to) {
-    if (this.attrs && this.attrs[name]) { this[name] = to; }
+    if (this.attrs && this.attrs[name]) { this[camelCase(name)] = to; }
     this.attributeChanged(name, from, to);
   },
 
@@ -138,7 +138,7 @@ var base = Object.assign(Object.create(HTMLElement.prototype), {
   }
 });
 
-var attrs = {
+var baseAttrs = {
   textContent: {
     set: function(value) {
       var node = firstChildTextNode(this);
@@ -201,7 +201,17 @@ function injectGlobalCss(css) {
   document.head.appendChild(style);
 }
 
-});})(typeof define=='function'&&define.amd?define
+/**
+ * This function will camelCase the input string.
+ * This is used when matching attributes with their internal name.
+ */
+function camelCase(str) {
+  return str.replace(/-(.)/g, function replacer(str, p1) {
+    return p1.toUpperCase();
+  });
+}
+
+);})(typeof define=='function'&&define.amd?define
 :(function(n,w){'use strict';return typeof module=='object'?function(c){
 c(require,exports,module);}:function(c){var m={exports:{}};c(function(n){
 return w[n];},m.exports,m);w[n]=m.exports;};})('gaia-component',this));
